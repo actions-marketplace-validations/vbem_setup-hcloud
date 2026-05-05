@@ -1,4 +1,4 @@
-# 🌼 GitHub Action to Setup Huawei Cloud KooCLI - `hcloud`
+# 🌼 GitHub Action to Setup Huawei Cloud KooCLI - `hcloud` CLI
 
 [![🧪 Testing](https://github.com/vbem/setup-hcloud/actions/workflows/test.yml/badge.svg)](https://github.com/vbem/setup-hcloud/actions/workflows/test.yml)
 [![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/vbem/setup-hcloud?label=Release&logo=github)](https://github.com/vbem/setup-hcloud/releases)
@@ -37,8 +37,8 @@ ID | Type | Default | Description
 
 ## Outputs
 
-ID | Type | Description
---- | --- | ---
-`url` | String | The URL used to download KooCLI binary.
-`path` | String | Path to KooCLI binary in the runner.
-`version` | String | The checked KooCLI version.
+ID | Type | Description | Example
+--- | --- | --- | ---
+`url` | String | The URL used to download KooCLI binary. | `https://cn-north-4-hdn-koocli.obs.cn-north-4.myhuaweicloud.com/cli/latest/huaweicloud-cli-linux-amd64.tar.gz`
+`path` | String | Path to KooCLI binary in the runner. | `/usr/local/bin/hcloud`
+`version` | String | The checked KooCLI version. | `Current KooCLI version: 7.2.2`

@@ -1,8 +1,8 @@
 ---
 name: setup-hcloud
 author: "@vbem"
-description: 🌼 Setup Huawei Cloud KooCLI - `hcloud`
-branding: { icon: terminal, color: gray-dark }
+description: 🌼 Setup Huawei Cloud KooCLI - `hcloud` CLI
+branding: {icon: terminal, color: gray-dark}
 inputs:
   agree-privacy:
     description: Whether to agree privacy statement when installing KooCLI, default to true
@@ -69,13 +69,13 @@ runs:
           sudo chmod a+rx /usr/local/bin/hcloud
           which hcloud
           echo "path=$(which hcloud)" >> "$GITHUB_OUTPUT"
-        } 2>&1 | kit::wf::group "🌼 Install Huawei Cloud KooCLI"
+        } |& kit::wf::group "🌼 Install Huawei Cloud KooCLI"
 
         if [[ '${{ inputs.agree-privacy }}' == 'true' ]]; then
-          hcloud configure set --cli-agree-privacy-statement=true 2>&1 \
-            | kit::wf::group "⚙️ Agree Privacy Statement for KooCLI"
+          hcloud configure set --cli-agree-privacy-statement=true \
+            |& kit::wf::group "⚙️ Agree Privacy Statement for KooCLI"
           if [[ '${{ inputs.check-version }}' == 'true' ]]; then
-            hcloud version 2>&1 | kit::wf::group "🔍 Check KooCLI Version"
+            hcloud version |& kit::wf::group "🔍 Check KooCLI Version"
             echo "version=$(hcloud version | head -n1)" >> "$GITHUB_OUTPUT"
           fi
         fi
