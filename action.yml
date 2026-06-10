@@ -18,13 +18,13 @@ inputs:
     default: https://cn-north-4-hdn-koocli.obs.cn-north-4.myhuaweicloud.com/cli/latest/
 outputs:
   url:
-    description: "URL of official KooCLI package used for installation"
+    description: URL of official KooCLI package used for installation
     value: ${{ steps.unix.outputs.url }}
   path:
-    description: "Path to KooCLI binary"
+    description: Path to KooCLI binary
     value: ${{ steps.unix.outputs.path }}
   version:
-    description: "The checked KooCLI version"
+    description: The checked KooCLI version
     value: ${{ steps.unix.outputs.version }}
 
 runs:
@@ -34,7 +34,7 @@ runs:
       id: unix
       shell: bash
       run: |
-        # `setup-hcloud` action implementation details
+        # implementation details - `setup-hcloud` action
 
         # Group stdin to stderr with title
         # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#grouping-log-lines

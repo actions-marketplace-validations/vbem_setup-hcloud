@@ -6,7 +6,7 @@
 
 ## About
 
-The [***KooCLI***](https://support.huaweicloud.com/hcli/index.html) is the official command-line tool provided by Huawei Cloud. It once provided an [official simple installation action](https://github.com/huaweicloud/huaweicloud-cli-action), but it is currently giving a 404 error for unknown reasons. This repository provides an alternative GitHub Action to install KooCLI in your workflow. It supports both Linux/macOS and Windows runners, and allows you to specify your internal mirror for downloading KooCLI binaries if needed.
+[***KooCLI***](https://support.huaweicloud.com/hcli/index.html) is the official command-line tool for Huawei Cloud. Huawei Cloud previously provided a [simple installation action](https://github.com/huaweicloud/huaweicloud-cli-action), but that repository currently returns 404. This action provides an alternative way to install KooCLI in your workflows. It supports Linux, macOS, and Windows runners, and can download KooCLI binaries from an internal mirror when needed.
 
 ## Example usage
 
@@ -14,7 +14,7 @@ The [***KooCLI***](https://support.huaweicloud.com/hcli/index.html) is the offic
 - name: Setup HW Cloud KooCLI
   uses: vbem/setup-hcloud@main
 
-- name: Test CLI by HW Cloud STS service
+- name: Test KooCLI with Huawei Cloud STS
   env:
     HUAWEICLOUD_SDK_REGION: cn-north-4
     HUAWEICLOUD_SDK_AK: ${{ secrets.HUAWEICLOUD_SDK_AK }}
@@ -31,14 +31,14 @@ The [***KooCLI***](https://support.huaweicloud.com/hcli/index.html) is the offic
 
 ID | Type | Default | Description
 --- | --- | --- | ---
-`agree-privacy` | Boolean | `true` | Whether to agree [privacy statement](https://support.huaweicloud.com/productdesc-hcli/hcli_024.html) when installing KooCLI.
-`check-version` | Boolean | `true` | Whether to check [KooCLI version](https://support.huaweicloud.com/usermanual-hcli/hcli_04_004.html) after installation (must work with `agree-privacy`).
-`base-url` | String | `https://cn-north-4-hdn-koocli.obs.cn-north-4.myhuaweicloud.com/cli/latest/` | Base URL for downloading [KooCLI official binaries](https://support.huaweicloud.com/qs-hcli/hcli_02_003_02.html). You can set it to your internal mirror if needed.
+`agree-privacy` | Boolean | `true` | Whether to accept the [privacy statement](https://support.huaweicloud.com/productdesc-hcli/hcli_024.html) during KooCLI installation.
+`check-version` | Boolean | `true` | Whether to check the [KooCLI version](https://support.huaweicloud.com/usermanual-hcli/hcli_04_004.html) after installation. Requires `agree-privacy` to be `true`.
+`base-url` | String | `https://cn-north-4-hdn-koocli.obs.cn-north-4.myhuaweicloud.com/cli/latest/` | Base URL for downloading the [official KooCLI binaries](https://support.huaweicloud.com/qs-hcli/hcli_02_003_02.html). Set this to an internal mirror if needed.
 
 ## Outputs
 
 ID | Type | Description | Example
 --- | --- | --- | ---
-`url` | String | The URL used to download KooCLI binary. | `https://cn-north-4-hdn-koocli.obs.cn-north-4.myhuaweicloud.com/cli/latest/huaweicloud-cli-linux-amd64.tar.gz`
-`path` | String | Path to KooCLI binary in the runner. | `/usr/local/bin/hcloud`
-`version` | String | The checked KooCLI version. | `Current KooCLI version: 7.2.2`
+`url` | String | The URL used to download the KooCLI binary. | `https://cn-north-4-hdn-koocli.obs.cn-north-4.myhuaweicloud.com/cli/latest/huaweicloud-cli-linux-amd64.tar.gz`
+`path` | String | The path to the KooCLI binary on the runner. | `/usr/local/bin/hcloud`
+`version` | String | The detected KooCLI version. | `Current KooCLI version: 7.2.2`
