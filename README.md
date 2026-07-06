@@ -41,4 +41,8 @@ ID | Type | Description | Example
 --- | --- | --- | ---
 `url` | String | The URL used to download the KooCLI package. | `https://cn-north-4-hdn-koocli.obs.cn-north-4.myhuaweicloud.com/cli/latest/huaweicloud-cli-linux-amd64.tar.gz`
 `path` | String | The path to the KooCLI binary on the runner. | `/usr/local/bin/hcloud`
-`version` | String | The detected KooCLI version. | `Current KooCLI version: 7.2.2`
+`version` | String | The detected KooCLI version. | `Current KooCLI version: 7.2.12`
+
+## Miscellaneous
+
+- Storing long-term AK/SK in GitHub secrets increases the risk of accidental exposure and maintenance burden. Consider using OIDC based temporary STS credentials instead. See [`configure-huawei-cloud-credentials`](https://github.com/marketplace/actions/configure-huawei-cloud-credentials) for more details.
