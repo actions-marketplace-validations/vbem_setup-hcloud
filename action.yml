@@ -39,16 +39,18 @@ runs:
       run: |
         # implementation details - `setup-hcloud` action
 
-        # Group stdin to stderr with title
-        # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#grouping-log-lines
+        # Group stdin to log in stderr with a title
+        # https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-commands#grouping-log-lines
         #   $1: group title
-        #   stdin: logs
-        #   stderr: grouped logs
         #   $?: 0 if successful and non-zero otherwise
-        function kit::wf::group {
-          echo "::group::$1"      >&2
-          echo "$(< /dev/stdin)"  >&2
-          echo '::endgroup::'     >&2
+        #   stdin: logs
+        #   stderr: grouped logs, error logs
+        # Example:
+        #   command |& gh::group "Command Logs"
+        function gh::group {
+            echo "::group::$1" >&2
+            cat >&2 # redirect stdin to stderr
+            echo '::endgroup::' >&2
         }
 
         {
