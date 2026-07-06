@@ -5,27 +5,30 @@ description: 🌼 Setup Huawei Cloud KooCLI - `hcloud` CLI
 branding: {icon: terminal, color: gray-dark}
 inputs:
   agree-privacy:
-    description: Whether to agree privacy statement when installing KooCLI, default to true
+    description: Whether to agree privacy statement when installing KooCLI.
+      Default to true.
     required: false
     default: "true"
   check-version:
-    description: Whether to check KooCLI version after installation, default to true
+    description: Whether to check KooCLI version after installation.
+      Default to true.
     required: false
     default: "true"
-  base-url:
-    description: Base URL for KooCLI binary releases
+  mirror:
+    description: The URL prefix of mirror for downloading KooCLI.
+      Default to empty, which will use the official mirror for downloading.
     required: false
-    default: https://cn-north-4-hdn-koocli.obs.cn-north-4.myhuaweicloud.com/cli/latest/
+    default: ""
 outputs:
   url:
     description: URL of official KooCLI package used for installation
-    value: ${{ steps.unix.outputs.url }}
+    value: ${{ steps.unix.outputs.url || steps.windows.outputs.url }}
   path:
     description: Path to KooCLI binary
-    value: ${{ steps.unix.outputs.path }}
+    value: ${{ steps.unix.outputs.path || steps.windows.outputs.path }}
   version:
     description: The checked KooCLI version
-    value: ${{ steps.unix.outputs.version }}
+    value: ${{ steps.unix.outputs.version || steps.windows.outputs.version }}
 
 runs:
   using: composite
@@ -48,44 +51,114 @@ runs:
           echo '::endgroup::'     >&2
         }
 
-        declare app_os='' app_arch='' app_url=''
-
-        case "${{ runner.os }}" in
-          'macOS') app_os='mac' ;;
-          'Linux') app_os='linux' ;;
-          *) echo "Unsupported Runner OS: '${{ runner.os }}'"; exit 1 ;;
-        esac
-
-        case "${{ runner.arch }}" in
-          'X64') app_arch='amd64' ;;
-          'ARM64') app_arch='arm64' ;;
-          *) echo "Unsupported Runner Architecture: '${{ runner.arch }}'"; exit 1 ;;
-        esac
-
-        app_url="${{ inputs.base-url }}huaweicloud-cli-${app_os}-${app_arch}.tar.gz"
-        echo "url=${app_url}" >> "$GITHUB_OUTPUT"
         {
+          declare app_os='' app_arch='' mirror='${{ inputs.mirror }}' app_url=''
+
+          case "${{ runner.os }}" in
+            'macOS') app_os='mac' ;;
+            'Linux') app_os='linux' ;;
+            *) echo "❌ Unsupported Runner OS: '${{ runner.os }}'" >&2; exit 1 ;;
+          esac
+
+          case "${{ runner.arch }}" in
+            'X64') app_arch='amd64' ;;
+            'ARM64') app_arch='arm64' ;;
+            *) echo "❌ Unsupported Runner Architecture: '${{ runner.arch }}'" >&2; exit 1 ;;
+          esac
+
+          if [[ -z "$mirror" ]]; then
+            if [[ '${{ runner.environment }}' == 'github-hosted' ]]; then
+              # Intl: https://support.huaweicloud.com/intl/zh-cn/qs-hcli/hcli_02_003.html
+              mirror="https://ap-southeast-3-hwcloudcli.obs.ap-southeast-3"
+            else
+              # CN: https://support.huaweicloud.com/qs-hcli/hcli_02_003.html
+              mirror="https://cn-north-4-hdn-koocli.obs.cn-north-4"
+            fi
+            mirror+=".myhuaweicloud.com/cli/latest/"
+          fi
+
+          app_url="${mirror}huaweicloud-cli-${app_os}-${app_arch}.tar.gz"
+          echo "url=${app_url}" >> "$GITHUB_OUTPUT"
+          echo "📥 Downloading $app_url" >&2
           curl -fsSL "$app_url" | sudo tar -xzC /usr/local/bin hcloud
           sudo chmod a+rx /usr/local/bin/hcloud
           which hcloud
           echo "path=$(which hcloud)" >> "$GITHUB_OUTPUT"
-        } |& kit::wf::group "🌼 Install Huawei Cloud KooCLI"
 
-        if [[ '${{ inputs.agree-privacy }}' == 'true' ]]; then
-          hcloud configure set --cli-agree-privacy-statement=true \
-            |& kit::wf::group "⚙️ Agree Privacy Statement for KooCLI"
-          if [[ '${{ inputs.check-version }}' == 'true' ]]; then
-            hcloud version |& kit::wf::group "🔍 Check KooCLI Version"
-            echo "version=$(hcloud version | head -n1)" >> "$GITHUB_OUTPUT"
+          if [[ '${{ inputs.agree-privacy }}' == 'true' ]]; then
+            echo "⚙️ Agree Privacy Statement for KooCLI" >&2
+            hcloud configure set --cli-agree-privacy-statement=true >&2
+            if [[ '${{ inputs.check-version }}' == 'true' ]]; then
+              echo "🔍 Checking KooCLI Version" >&2
+              hcloud version >&2
+              echo "version=$(hcloud version | head -n1)" >>"$GITHUB_OUTPUT"
+            fi
           fi
-        fi
+        } |& gh::group '🌼 Setup Huawei Cloud KooCLI - `hcloud` CLI'
 
     - if: runner.os == 'Windows'
       id: windows
       shell: pwsh
       run: |
-        curl -fsSL -O "${{ inputs.base-url }}huaweicloud-cli-windows-amd64.zip"
-        Expand-Archive -Path ./huaweicloud-cli-windows-amd64.zip -DestinationPath ./out
-        $env:PATH = "$env:PATH;$pwd/out"
-        which hcloud
-        hcloud version
+        # implementation details - `setup-hcloud` action
+
+        $ErrorActionPreference = 'Stop'
+
+        [Console]::Error.WriteLine('::group::🌼 Setup Huawei Cloud KooCLI - `hcloud` CLI')
+        try {
+          $AppOs = 'windows'
+          $AppArch = ''
+          $Mirror = '${{ inputs.mirror }}'
+          $AppUrl = ''
+
+          switch ('${{ runner.arch }}') {
+            'X64' { $AppArch = 'amd64' }
+            default { throw "❌ Unsupported Runner Architecture: '${{ runner.arch }}'" }
+          }
+
+          if ([string]::IsNullOrEmpty($Mirror)) {
+            if ('${{ runner.environment }}' -eq 'github-hosted') {
+              # Intl: https://support.huaweicloud.com/intl/zh-cn/qs-hcli/hcli_02_003.html
+              $Mirror = 'https://ap-southeast-3-hwcloudcli.obs.ap-southeast-3'
+            } else {
+              # CN: https://support.huaweicloud.com/qs-hcli/hcli_02_003.html
+              $Mirror = 'https://cn-north-4-hdn-koocli.obs.cn-north-4'
+            }
+            $Mirror += '.myhuaweicloud.com/cli/latest/'
+          }
+
+          $AppUrl = "${Mirror}huaweicloud-cli-${AppOs}-${AppArch}.zip"
+          "url=${AppUrl}" >> $env:GITHUB_OUTPUT
+          [Console]::Error.WriteLine("📥 Downloading $AppUrl")
+
+          $ArchivePath = Join-Path $env:RUNNER_TEMP 'hcloud.zip'
+          $ExtractDir = Join-Path $env:RUNNER_TEMP 'hcloud'
+          $InstallDir = Join-Path $env:RUNNER_TEMP 'hcloud-bin'
+          New-Item -ItemType Directory -Force -Path $ExtractDir, $InstallDir | Out-Null
+          Invoke-WebRequest -Uri $AppUrl -OutFile $ArchivePath
+          Expand-Archive -Path $ArchivePath -DestinationPath $ExtractDir -Force
+          $Hcloud = Get-ChildItem -Path $ExtractDir -Filter 'hcloud.exe' -Recurse | Select-Object -First 1
+          if ($null -eq $Hcloud) {
+            throw '❌ hcloud.exe not found in downloaded archive'
+          }
+          Copy-Item -Path $Hcloud.FullName -Destination $InstallDir -Force
+          $env:Path = "${InstallDir};$env:Path"
+          $InstallDir >> $env:GITHUB_PATH
+
+          $HcloudPath = (Get-Command hcloud).Source
+          Write-Output $HcloudPath
+          "path=${HcloudPath}" >> $env:GITHUB_OUTPUT
+
+          if ('${{ inputs.agree-privacy }}' -eq 'true') {
+            [Console]::Error.WriteLine('⚙️ Agree Privacy Statement for KooCLI')
+            hcloud configure set --cli-agree-privacy-statement=true 1>&2
+            if ('${{ inputs.check-version }}' -eq 'true') {
+              [Console]::Error.WriteLine('🔍 Checking KooCLI Version')
+              hcloud version 1>&2
+              $Version = hcloud version | Select-Object -First 1
+              "version=${Version}" >> $env:GITHUB_OUTPUT
+            }
+          }
+        } finally {
+          [Console]::Error.WriteLine('::endgroup::')
+        }
