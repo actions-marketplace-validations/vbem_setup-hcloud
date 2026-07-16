@@ -9,6 +9,11 @@ inputs:
       Default to true.
     required: false
     default: "true"
+  disable-warning:
+    description: Whether to disable warning for future KooCLI execution.
+      Default to true.
+    required: false
+    default: "true"
   check-version:
     description: Whether to check KooCLI version after installation.
       Default to true.
@@ -90,6 +95,12 @@ runs:
           if [[ '${{ inputs.agree-privacy }}' == 'true' ]]; then
             echo "⚙️ Agree Privacy Statement for KooCLI" >&2
             hcloud configure set --cli-agree-privacy-statement=true >&2
+
+            if [[ '${{ inputs.disable-warning }}' == 'true' ]]; then
+              echo "🔕 Disable Warning for KooCLI" >&2
+              hcloud configure set --cli-warning=false >&2
+            fi
+
             if [[ '${{ inputs.check-version }}' == 'true' ]]; then
               echo "🔍 Checking KooCLI Version" >&2
               hcloud version >&2

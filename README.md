@@ -32,6 +32,7 @@
 ID | Type | Default | Description
 --- | --- | --- | ---
 `agree-privacy` | Boolean | `true` | Whether to accept the [privacy statement](https://support.huaweicloud.com/productdesc-hcli/hcli_024.html) during installation.
+`disable-warning` | Boolean | `true` | Whether to [disable warning](https://support.huaweicloud.com/usermanual-hcli/hcli_03_003_01.html) for future KooCLI execution. This requires `agree-privacy` to be `true`.
 `check-version` | Boolean | `true` | Whether to check the [KooCLI version](https://support.huaweicloud.com/usermanual-hcli/hcli_04_004.html) after installation. This requires `agree-privacy` to be `true`.
 `mirror` | String | `""` | The mirror URL prefix used to download KooCLI. Default is empty, which will use the official mirrors: the [Singapore mirror](https://support.huaweicloud.com/intl/en-us/qs-hcli/hcli_02_003.html) for GitHub-hosted runners, and the [Beijing mirror](https://support.huaweicloud.com/qs-hcli/hcli_02_003.html) otherwise.
 
