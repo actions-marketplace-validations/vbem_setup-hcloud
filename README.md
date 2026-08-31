@@ -1,4 +1,4 @@
-# 🌼 GitHub Action to Setup Huawei Cloud KooCLI - `hcloud`
+# 🌼 GitHub Action to Setup Huawei Cloud KooCLI - `hcloud` CLI
 
 [![🧪 Testing](https://github.com/vbem/setup-hcloud/actions/workflows/test.yml/badge.svg)](https://github.com/vbem/setup-hcloud/actions/workflows/test.yml)
 [![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/vbem/setup-hcloud?label=Release&logo=github)](https://github.com/vbem/setup-hcloud/releases)
@@ -6,15 +6,15 @@
 
 ## About
 
-The [***KooCLI***](https://support.huaweicloud.com/hcli/index.html) is the official command-line tool provided by Huawei Cloud. It once provided an [official simple installation action](https://github.com/huaweicloud/huaweicloud-cli-action), but it is currently giving a 404 error for unknown reasons. This repository provides an alternative GitHub Action to install KooCLI in your workflow. It supports both Linux/macOS and Windows runners, and allows you to specify your internal mirror for downloading KooCLI binaries if needed.
+[***KooCLI***](https://support.huaweicloud.com/hcli/index.html) is the Huawei Cloud official command-line tool. Huawei Cloud previously provided a [simple setup action](https://github.com/huaweicloud/huaweicloud-cli-action), but that repository now returns 404. This action provides an alternative way to setup *KooCLI* on your runner. It supports Linux, macOS, and Windows runners, and can download *KooCLI* binaries from an internal mirror when needed.
 
 ## Example usage
 
 ```yaml
-- name: Setup HW Cloud KooCLI
-  uses: vbem/setup-hcloud@main
+- name: Setup Huawei Cloud KooCLI
+  uses: vbem/setup-hcloud@hash
 
-- name: Test CLI by HW Cloud STS service
+- name: Test KooCLI by querying the current IAM caller
   env:
     HUAWEICLOUD_SDK_REGION: cn-north-4
     HUAWEICLOUD_SDK_AK: ${{ secrets.HUAWEICLOUD_SDK_AK }}
@@ -31,14 +31,19 @@ The [***KooCLI***](https://support.huaweicloud.com/hcli/index.html) is the offic
 
 ID | Type | Default | Description
 --- | --- | --- | ---
-`agree-privacy` | Boolean | `true` | Whether to agree [privacy statement](https://support.huaweicloud.com/productdesc-hcli/hcli_024.html) when installing KooCLI.
-`check-version` | Boolean | `true` | Whether to check [KooCLI version](https://support.huaweicloud.com/usermanual-hcli/hcli_04_004.html) after installation (must work with `agree-privacy`).
-`base-url` | String | `https://cn-north-4-hdn-koocli.obs.cn-north-4.myhuaweicloud.com/cli/latest/` | Base URL for downloading [KooCLI official binaries](https://support.huaweicloud.com/qs-hcli/hcli_02_003_02.html). You can set it to your internal mirror if needed.
+`agree-privacy` | Boolean | `true` | Whether to accept the [privacy statement](https://support.huaweicloud.com/productdesc-hcli/hcli_024.html) during installation.
+`disable-warning` | Boolean | `true` | Whether to [disable warning](https://support.huaweicloud.com/usermanual-hcli/hcli_03_003_01.html) for future KooCLI execution. This requires `agree-privacy` to be `true`.
+`check-version` | Boolean | `true` | Whether to check the [KooCLI version](https://support.huaweicloud.com/usermanual-hcli/hcli_04_004.html) after installation. This requires `agree-privacy` to be `true`.
+`mirror` | String | `""` | The mirror URL prefix used to download KooCLI. Default is empty, which will use the official mirrors: the [Singapore mirror](https://support.huaweicloud.com/intl/en-us/qs-hcli/hcli_02_003.html) for GitHub-hosted runners, and the [Beijing mirror](https://support.huaweicloud.com/qs-hcli/hcli_02_003.html) otherwise.
 
 ## Outputs
 
-ID | Type | Description
---- | --- | ---
-`url` | String | The URL used to download KooCLI binary.
-`path` | String | Path to KooCLI binary in the runner.
-`version` | String | The checked KooCLI version.
+ID | Type | Description | Example
+--- | --- | --- | ---
+`url` | String | The URL used to download the KooCLI package. | `https://cn-north-4-hdn-koocli.obs.cn-north-4.myhuaweicloud.com/cli/latest/huaweicloud-cli-linux-amd64.tar.gz`
+`path` | String | The path to the KooCLI binary on the runner. | `/usr/local/bin/hcloud`
+`version` | String | The detected KooCLI version. | `Current KooCLI version: 7.2.12`
+
+## Miscellaneous
+
+- Storing long-term AK/SK in GitHub secrets increases the risk of accidental exposure and maintenance burden. Consider using OIDC based temporary STS credentials instead. See [`configure-huawei-cloud-credentials`](https://github.com/marketplace/actions/configure-huawei-cloud-credentials) for more details.

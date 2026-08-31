@@ -1,9 +1,8 @@
 ---
 name: 🧪 Testing
 run-name: ${{ github.workflow }} - ${{ toJson(inputs) }}
-concurrency: { group: "${{ github.workflow }}" }
-env:
-  TZ: Asia/Shanghai
+concurrency: {group: "${{ github.workflow }}"}
+env: {TZ: Asia/Shanghai}
 
 on:
   workflow_dispatch:
@@ -23,10 +22,12 @@ jobs:
   debug:
     runs-on: ${{ fromJson(inputs.runs-on||'ubuntu-slim') }}
     timeout-minutes: 5
+    defaults: {run: {shell: bash}}
+
     steps:
       - name: "📁 Checkout the repository"
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with: { persist-credentials: false }
+        with: {persist-credentials: false}
 
       - id: setup
         name: "⚙️ Run the setup action"
